@@ -45,7 +45,7 @@ A documentação completa do projeto, incluindo requisitos, user stories, regras
 ![Diagrama de Arquitetura](docs/diagramas/diagrama-arquitetura.png)
 
 ### Diagrama de Fluxo de Usuário
-![Diagrama de Fluxo de Usuário](docs/diagramas/diagrama-fluxo.png)
+![Diagrama de Fluxo de Usuário](docs/diagramas/diagrama-fluxo-usuario.png)
 
 ---
 
