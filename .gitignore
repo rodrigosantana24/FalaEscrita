@@ -98,3 +98,7 @@ jacoco.exec
 # Temporary files
 *.tmp
 *.swp
+
+# Frontend (React)
+/frontend/node_modules/
+/frontend/dist/
