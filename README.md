@@ -52,10 +52,39 @@ src/main/java/com/falaescrita/
 |Protocolo | Método | Endpoint | Descrição |
 | --- | --- | --- | --- |
 |**REST**| `POST` | `/api/v1/auth/login` | Autenticação e geração de Token JWT |
-|**REST**| `POST` | `/api/v1/meetings` | Cria uma nova sala de reunião |
-|**WSS**| `CONNECT` | `/ws/audio-stream` | Handshake do WebSocket para iniciar |envio contínuo |
+|**REST**| `GET` | `/api/v1/meetings` | Lista reuniões disponíveis |
+|**WSS**| `CONNECT` | `/ws/audio-stream` | Handshake do WebSocket para iniciar envio contínuo |
 |**WSS**| `SEND` | `/app/chat/{meetingId}` | Canal de envio dos fragmentos (blobs) de áudio |
-|**WSS**| `SUBSCRIBE` | `/topic/transcripts/{id}` | Canal onde o React recebe o    texto transcrito em tempo real |
+|**WSS**| `SUBSCRIBE` | `/topic/transcripts/{meetingId}` | Canal onde o React recebe o texto transcrito em tempo real |
+
+---
+
+## Execucao local
+
+### Backend (Spring Boot)
+
+```bash
+cd backend
+mvn spring-boot:run
+```
+
+### Frontend (React SPA)
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Frontend: `http://localhost:3000`  
+Backend/API: `http://localhost:8080`
+
+O frontend usa:
+
+- `useState` + `useEffect` para status de gravacao (`Gravando`, `Pausado`, `Processando`)
+- Context API para estado global da reuniao (lista de frases transcritas)
+- Web Audio API + `MediaRecorder` para fragmentar audio em janelas de 100ms
+- SockJS/STOMP para streaming bidirecional em tempo real
 
 ---
 
