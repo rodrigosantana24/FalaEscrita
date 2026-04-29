@@ -1,122 +1,107 @@
 # FalaEscrita - Status atual do projeto
 
-Este documento resume, de forma objetiva, tudo o que foi implementado ate agora no sistema.
+Este documento resume o que ja esta implementado no backend e frontend.
 
 ## 1. Visao geral
 
-O projeto esta estruturado com backend em Spring Boot e persistencia hibrida:
+O projeto possui:
 
-- **PostgreSQL** para dados relacionais
-- **MongoDB** para dados de documentos
+- **Backend** em Spring Boot (REST + WebSocket STOMP/SockJS)
+- **Frontend** em React (SPA) com captura de audio no navegador
+- **Persistencia hibrida** configurada para PostgreSQL e MongoDB
 
-O backend ja sobe com sucesso e conecta nos dois bancos via Docker Compose.
+## 2. Backend implementado
 
-## 2. O que ja foi feito
+### REST (HTTP)
 
-1. Projeto backend Spring Boot criado em `backend/`.
-2. Build com Maven configurado (Java 21, empacotamento `jar`).
-3. Dependencias base adicionadas:
-   - `spring-boot-starter-web`
-   - `spring-boot-starter-websocket`
-   - `spring-boot-starter-data-jpa`
-   - `postgresql` (runtime)
-   - `spring-boot-starter-data-mongodb`
-   - `lombok`
-   - `spring-boot-starter-test`
-4. Classe principal da aplicacao criada (`FalaEscritaApplication`).
-5. Teste inicial de contexto criado (`FalaEscritaApplicationTests`).
-6. Configuracoes de conexao com PostgreSQL e MongoDB em `application.properties`.
-7. Arquivo `docker-compose.yml` criado na raiz com os dois bancos.
-8. Conexao dos dois bancos validada com a aplicacao em execucao.
+- `POST /api/v1/auth/login`
+  - Entrada (DTO): `LoginRequestDto`
+  - Saida (DTO): `LoginResponseDto`
+- `GET /api/v1/meetings`
+  - Saida (DTO): `MeetingDto`
 
-## 3. Estrutura atual do repositorio
+### WebSocket (tempo real)
+
+- Endpoint STOMP/SockJS: `/ws/audio-stream`
+- Envio de audio: `/app/chat/{meetingId}`
+- Recebimento de transcricao: `/topic/transcripts/{meetingId}`
+
+DTOs de streaming:
+
+- `AudioChunkDto`
+- `TranscriptMessageDto`
+
+### CORS
+
+- CORS configurado para API REST (`/api/**`)
+- Origem permitida por propriedade:
+  - `app.cors.allowed-origins=http://localhost:3000`
+- Mesmo dominio permitido no handshake WebSocket/SockJS
+
+## 3. Frontend implementado
+
+SPA React em `frontend/` com:
+
+- **Captura de midia** via `navigator.mediaDevices.getUserMedia` + Web Audio API
+- **Streaming de audio** com `MediaRecorder` em chunks de **100ms**
+- **Cliente WebSocket** com **SockJS + STOMP**
+- **Interface reativa** que atualiza o texto conforme mensagens chegam
+- **Context API** para estado global da reuniao e lista de transcricoes
+- **Hooks com useState/useEffect** para status:
+  - `Gravando`
+  - `Pausado`
+  - `Processando`
+
+## 4. Estrutura atual do repositorio
 
 ```text
 FalaEscrita/
 ├── backend/
-│   ├── pom.xml
+│   └── src/main/java/com/falaescrita/backend/
+│       ├── config/
+│       ├── controller/
+│       ├── dto/
+│       ├── service/
+│       └── websocket/
+├── frontend/
+│   ├── package.json
 │   └── src/
-│       ├── main/
-│       │   ├── java/com/falaescrita/backend/FalaEscritaApplication.java
-│       │   └── resources/application.properties
-│       └── test/
-│           └── java/com/falaescrita/backend/FalaEscritaApplicationTests.java
+│       ├── api/
+│       ├── context/
+│       ├── hooks/
+│       ├── App.jsx
+│       └── main.jsx
 ├── docs/
 │   └── README.md
 ├── docker-compose.yml
-├── README.md
-└── LICENSE
+└── README.md
 ```
 
-## 4. Banco de dados com Docker Compose
+## 5. Como executar localmente
 
-Arquivo: `docker-compose.yml` (na raiz)
-
-Servicos configurados:
-
-- **PostgreSQL**
-  - container: `streaming_postgres`
-  - porta: `5432`
-  - database: `streaming_db`
-  - user/password: `admin` / `adminpassword`
-- **MongoDB**
-  - container: `streaming_mongo`
-  - porta: `27017`
-  - user/password: `admin` / `adminpassword`
-
-Comando para subir os bancos:
+### 1. Subir bancos
 
 ```bash
 docker compose up -d
 ```
 
-Comando para verificar:
+### 2. Backend
 
 ```bash
-docker compose ps
+cd backend
+mvn spring-boot:run
 ```
 
-## 5. Configuracao da aplicacao (Spring)
+### 3. Frontend
 
-Arquivo: `backend/src/main/resources/application.properties`
-
-```properties
-spring.application.name=falaescrita-backend
-
-# PostgreSQL
-spring.datasource.url=jdbc:postgresql://localhost:5432/streaming_db
-spring.datasource.username=admin
-spring.datasource.password=adminpassword
-spring.jpa.hibernate.ddl-auto=update
-
-# MongoDB
-spring.data.mongodb.uri=mongodb://admin:adminpassword@localhost:27017/streaming_mongo?authSource=admin
+```bash
+cd frontend
+npm install
+npm run dev
 ```
 
-## 6. Evidencias de conexao concluida
+## 6. Proximos passos
 
-Durante a inicializacao do backend, foram confirmados:
-
-- `HikariPool-1 - Start completed.`
-- `Added connection org.postgresql.jdbc.PgConnection...`
-- `Monitor thread successfully connected to server ... localhost:27017`
-- `Started FalaEscritaApplication ...`
-
-Isso confirma conexao ativa com PostgreSQL e MongoDB no ambiente local.
-
-## 7. Estado atual do sistema
-
-Implementado ate o momento:
-
-- base tecnica do backend
-- configuracao de persistencia hibrida
-- infraestrutura local de bancos via Docker
-- aplicacao inicializando e conectando corretamente
-
-Ainda nao implementado (proximas etapas):
-
-- modulos de dominio (`controller`, `service`, `repository`, `model`)
-- seguranca (JWT)
-- fluxos de negocio (reunioes, transcricao, historico)
-- endpoints REST e canais WebSocket do produto final
-
+- Substituir transcricao simulada por mecanismo real (Whisper/OpenAI/Spring AI)
+- Implementar seguranca JWT completa com Spring Security
+- Persistir reunioes e transcricoes em PostgreSQL/MongoDB
