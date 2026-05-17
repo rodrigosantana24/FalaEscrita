@@ -65,8 +65,11 @@ src/main/java/com/falaescrita/
 
 ```bash
 cd backend
+set OPENAI_API_KEY=sua_chave_openai
 mvn spring-boot:run
 ```
+
+> A transcricao em tempo real depende da variavel `OPENAI_API_KEY` configurada no backend.
 
 ### Frontend (React SPA)
 
