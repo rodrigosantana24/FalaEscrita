@@ -32,6 +32,8 @@ public class TranscriptionWebSocketController {
         }
 
         TranscriptMessageDto transcript = transcriptionService.transcribe(meetingId, audioChunk);
-        messagingTemplate.convertAndSend("/topic/transcripts/" + transcript.meetingId(), transcript);
+        if (transcript != null) {
+            messagingTemplate.convertAndSend("/topic/transcripts/" + transcript.meetingId(), transcript);
+        }
     }
 }
