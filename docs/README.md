@@ -25,6 +25,7 @@ O projeto possui:
 - Endpoint STOMP/SockJS: `/ws/audio-stream`
 - Envio de audio: `/app/chat/{meetingId}`
 - Recebimento de transcricao: `/topic/transcripts/{meetingId}`
+- Transcricao real via Whisper/OpenAI (com buffer de chunks para evitar mensagens repetidas)
 
 DTOs de streaming:
 
@@ -89,6 +90,7 @@ docker compose up -d
 
 ```bash
 cd backend
+set OPENAI_API_KEY=sua_chave_openai
 mvn spring-boot:run
 ```
 
@@ -102,6 +104,5 @@ npm run dev
 
 ## 6. Proximos passos
 
-- Substituir transcricao simulada por mecanismo real (Whisper/OpenAI/Spring AI)
 - Implementar seguranca JWT completa com Spring Security
 - Persistir reunioes e transcricoes em PostgreSQL/MongoDB
